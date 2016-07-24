@@ -74,7 +74,7 @@ colnamesnull<-names(test_withnull)
 }
 ```
 
-###Considering only non null variables in test data(only around 58 variables are considred for model building)#### 
+###Considering only non null variables in test data(only around 58 variables are considred for model building) 
 ```{r}
 test_nonull<-subset(test_nullcount,test_nullcount<1) 
 testnonull<-names(test_nonull)
