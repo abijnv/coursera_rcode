@@ -87,7 +87,7 @@ traindata<-traininput[,testnonull] colnames(traindata)[colnames(traindata)=="tra
 ```
 
 
-##Data Partioning.
+##Data Partioning
 The training data was partioned into sample training and sample testing data .The partition was based on the target variable such that 
 same ratio of target classes were in both samples.
 The training sample consists of   14718 rows   ,the testing sample consists of  4904 rows.
@@ -102,7 +102,7 @@ set.seed(1127)
 ```{r}
 inTraining <- createDataPartition(traindata$classe, p = .75, list = FALSE) trainingsample <- traindata[ inTraining,] testingsample <- traindata[-inTraining,]
 
-fitControl <- trainControl(## 10-fold CV method = "repeatedcv", number = 10, ## repeated ten times repeats = 10)
+fitControl <- trainControl(method = "repeatedcv", number = 10, repeats = 10)
 ```
 
 ##Model building 
@@ -110,12 +110,12 @@ A gbm model was built on the training sample and the accuracy was checked with t
 ```{r}
 library(gbm)
 set.seed(2029) 
-gbmFit1 <- train(classe ~ ., data = trainingsample, method = "gbm", trControl = fitControl, ## This last option is actually one ## for gbm() that passes through verbose = FALSE)
+gbmFit1 <- train(classe ~ ., data = trainingsample, method = "gbm", trControl = fitControl)
 
 gbmFit1
 ```
 
-###Predicting the gbm fit model on sample test set obtained from the training partion and checking accuracy by confusion matrix####
+###Predicting the gbm fit model on sample test set obtained from the training partion and checking accuracy by confusion matrix
 Here, we get an accuracy of 97% on sample test data.
 
 ```{r}
