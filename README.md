@@ -9,6 +9,6 @@ The goal of this project is to predict Human activity recognition, which is defi
 
 1.README.md : This document
 
-2.Human_activity_rec.rmd : The R Markdown file describing the analysis. The results of the prediction of 20 test cases is also mentioned in this document.
+2.humanact.rmd : The R Markdown file describing the analysis. The results of the prediction of 20 test cases is also mentioned in this document.
 
-3.Human_activity_rec.md and Human_activity_rec.html - the markdown and html files are generated using knitr on the Human_activity_rec.Rmd.
+3.humanact.md and humanact.html - the markdown and html files are generated using knitr on the humanact.Rmd.
