@@ -1,0 +1,157 @@
+#Couresera_rcode for Human Activity Recognition
+
+##Summary
+The data is about human activity recognition and is based on accelerometer and gyroscope data for 6 subjects.
+A gradient boosted model is built.
+
+##Input Data
+
+###Reading Train Input
+
+The training data set consits of 19623   records and the testing perediction data consists of 20 rows.
+```{r}
+traininput<-read.csv("E:\\coursera\\pml-training.csv") 
+```
+
+
+###Reading Test input
+```{r}
+testinput<-read.csv("E:\\coursera\\pml-testingna.csv") 
+testinput$X<-NULL 
+testinput$problem_id<-NULL
+```
+
+##Data Preprocessing
+
+Unwanted information were removed .Missing value count for every column in testing data was found.Only columns in testing data that had had no missing values were considered.
+Hence the total variables excluding the target was reduced from 169 to 58.
+The same 58 variables were considerd in the training data along with the target.
+
+###Understanding train data
+```{r}
+dim(traininput)
+str(traininput)
+str(traininput[,150:160]) 
+classe_table<-table(traininput$classe)
+ barplot(classe_table,main="Classe_count",xlab ="Classe",ylab="Count",col="blue")
+ traininput[,1]<-NULL
+ str(traininput)
+```
+
+###Taking count of null values in training data
+```{r}
+ nullcount<-colSums(is.na(traininput))
+ barplot(nullcount,main="nullcount",xlab ="variablenames",ylab="nullcount",col="blue")
+ plot(nullcount)
+ variable_withnull<-which(nullcount>0)
+ plot(variable_withnull)
+ table(variable_withnull)
+ barplot(variable_withnull,main="nullvar",xlab="variablenames",ylab="nullcount",col="blue")
+```
+
+###Taking count of uniue values for every variable
+
+```{r}
+lu<-NULL 
+for( i in 1:ncol(traininput)) 
+{ 
+lu[i]<-length(unique(traininput[,i]))
+ } 
+lu
+names(traininput) 
+variable_u<-cbind(names(traininput),lu)
+str(variable_u) 
+variable_u<-as.data.frame(variable_u)
+```
+
+
+###Taking null count of every column in testdata
+```{r}
+test_nullcount<-colSums(is.na(testinput)) 
+test_withnull<-subset(test_nullcount,test_nullcount>0)
+
+for(i in 1:ncol(testinput))
+{ 
+test_nullcount<-colSums(is.na(testinput)) 
+colnamesnull<-names(test_withnull) 
+}
+```
+
+###Considering only non null variables in test data(only around 58 variables are considred for model building)#### 
+```{r}
+test_nonull<-subset(test_nullcount,test_nullcount<1) 
+testnonull<-names(test_nonull)
+testp<-testinput[,testnonull]
+```
+
+###Taking same variables in trainingdata also
+```{r}
+traindata<-cbind(traininput[,testnonull],traininput$classe)
+colnames(traindata)[colnames(traindata)=="traininput$classe"] <- "classe"
+str(traindata)
+```
+
+
+##Data Partioning.
+The training data was partioned into sample training and sample testing data .The partition was based on the target variable such that 
+same ratio of target classes were in both samples.
+The training sample consists of   14718 rows   ,the testing sample consists of  4904 rows.
+
+###Including required libraries
+```{r}
+library(caret) 
+set.seed(1127)
+```
+
+###Split training data into training and testing data set
+```{r}
+inTraining <- createDataPartition(traindata$classe, p = .75, list = FALSE)
+
+ trainingsample <- traindata[ inTraining,]
+ 
+testingsample <- traindata[-inTraining,]
+
+fitControl <- trainControl(method = "repeatedcv", number = 10,repeats = 10)
+```
+
+##Model building 
+A gbm model was built on the training sample and the accuracy was checked with the test sample and we obtained a accuracy of 97% by using confusion matrix.
+```{r}
+library(gbm)
+set.seed(2029) 
+gbmFit1 <- train(classe ~ ., data = trainingsample, method = "gbm", trControl = fitControl,verbose = FALSE)
+
+gbmFit1
+```
+
+###Predicting the gbm fit model on sample test set obtained from the training partion and checking accuracy by confusion matrix####
+Here, we get an accuracy of 97% on sample test data.
+
+```{r}
+testingsamplee<-testingsample[,1:58] 
+tespred<-predict(gbmFit1,newdata=testingsamplee) 
+confmatrix<-table( tespred,testingsample$classe)
+confmatrix
+```
+
+###out of sample error
+```{r}
+outOfSampleError.accuracy <- sum(tespred == testingsample$classe)/length(tespred)
+outOfSampleError.accuracy
+outOfSampleError <- 1 - outOfSampleError.accuracy
+outOfSampleErrorpercent<-outOfSampleError*100
+outOfSampleErrorpercent
+```
+
+###Predicting the gbm fit model on original testing data
+```{r}
+testset_prediction<-predict(gbmFit1,newdata=testp)
+```
+
+###Writing the result to a csv file
+```{r}
+write.csv(testset_prediction,"testset_prediction.csv")
+```
+
+The predicted output for test data set is as follows
+B A B A A E D B A A B C B A E E A B B B
